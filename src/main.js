@@ -22,6 +22,35 @@ const camera = createCamera();
 const controls = createControls(camera, renderer.domElement);
 fitRoomToView(camera, controls, room.bounds);
 
+// Improve mobile touch behavior
+canvas.style.touchAction = 'none';
+// Avoid long-press context menu on mobile browsers
+canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+// Dynamic layout: match canvas top inset to topbar height
+const topbar = document.getElementById('topbar');
+const canvasWrap = document.getElementById('canvas-wrap');
+
+function updateTopbarHeightVar() {
+  const h = topbar.offsetHeight || 48;
+  // Update CSS variable used by #canvas-wrap
+  document.documentElement.style.setProperty('--topbar-h', `${h}px`);
+}
+updateTopbarHeightVar();
+
+// Update hint for touch vs mouse
+const hint = document.getElementById('hint');
+function setHintForPointer() {
+  const isCoarse = window.matchMedia('(pointer: coarse)').matches;
+  hint.textContent = isCoarse
+    ? 'Touch: 1-finger orbit • 2-finger pan • Pinch zoom'
+    : 'Mouse: Left = orbit, Right = pan, Wheel = zoom • Keys: T/F/G/A/R';
+}
+setHintForPointer();
+
+// Watch for changes in pointer capabilities (rare but possible)
+matchMedia('(pointer: coarse)').addEventListener?.('change', setHintForPointer);
+
 const clock = new Clock();
 
 function resizeRendererToDisplaySize() {
@@ -36,6 +65,13 @@ function resizeRendererToDisplaySize() {
   }
   return needResize;
 }
+
+function onResize() {
+  updateTopbarHeightVar();
+  resizeRendererToDisplaySize();
+}
+window.addEventListener('resize', onResize);
+window.addEventListener('orientationchange', onResize);
 
 function animate() {
   requestAnimationFrame(animate);
@@ -96,7 +132,7 @@ const api = {
 
 initPanels(api);
 
-// Keyboard shortcuts
+// Keyboard shortcuts (skip when editing inputs)
 window.addEventListener('keydown', (e) => {
   if (['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)) return;
   switch (e.key.toLowerCase()) {
@@ -111,4 +147,5 @@ window.addEventListener('keydown', (e) => {
 // Handle DPR changes (zooming on some devices)
 matchMedia(`(resolution: ${devicePixelRatio}dppx)`).addEventListener?.('change', () => {
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  resizeRendererToDisplaySize();
 });
