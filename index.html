@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>3D House Builder — Starter</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="topbar">
+        <div class="brand">3D House Builder — Starter</div>
+        <div class="controls">
+          <button id="btn-topdown" title="Snap top-down view (T)">Top-Down</button>
+          <button id="btn-fit" title="Frame the room (F)">Frame Room</button>
+          <button id="btn-grid" title="Toggle grid (G)">Grid</button>
+          <button id="btn-axes" title="Toggle axes (A)">Axes</button>
+          <button id="btn-reset" title="Reset camera (R)">Reset</button>
+        </div>
+      </div>
+
+      <div id="canvas-wrap">
+        <canvas id="c"></canvas>
+        <div id="hint">
+          Mouse: Left = orbit, Right = pan, Wheel = zoom • Keys: T/F/G/A/R
+        </div>
+      </div>
+    </div>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.164.1/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.164.1/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module" src="./src/main.js"></script>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
+
