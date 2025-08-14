@@ -15,7 +15,7 @@ renderer.toneMapping = ACESFilmicToneMapping;
 const { scene, helpers } = createScene({ showGrid: true, showAxes: true });
 
 const ROOM_SIZE = { width: 12, depth: 10, height: 3 }; // meters
-const room = buildRoom(ROOM_SIZE);
+let room = buildRoom(ROOM_SIZE);
 scene.add(room.group);
 
 const camera = createCamera();
@@ -46,6 +46,22 @@ function animate() {
 }
 animate();
 
+// Helpers to dispose old room meshes to avoid GPU leaks
+function disposeObject3D(obj) {
+  obj.traverse((child) => {
+    if (child.geometry) {
+      child.geometry.dispose?.();
+    }
+    if (child.material) {
+      if (Array.isArray(child.material)) {
+        child.material.forEach((m) => m.dispose?.());
+      } else {
+        child.material.dispose?.();
+      }
+    }
+  });
+}
+
 // UI wiring
 const api = {
   topDown: () => topDownView(camera, controls, room.bounds),
@@ -53,6 +69,29 @@ const api = {
   grid: () => helpers.toggleGrid(),
   axes: () => helpers.toggleAxes(),
   reset: () => resetCamera(camera, controls, room.bounds),
+
+  // New: room size controls
+  getRoomSize: () => ({ width: ROOM_SIZE.width, depth: ROOM_SIZE.depth }),
+  setRoomSize: ({ width, depth }) => {
+    // Clamp and sanitize values
+    const w = Math.min(Math.max(1, Number(width)), 100);
+    const d = Math.min(Math.max(1, Number(depth)), 100);
+
+    // Update stored size
+    ROOM_SIZE.width = w;
+    ROOM_SIZE.depth = d;
+
+    // Remove and dispose old room
+    scene.remove(room.group);
+    disposeObject3D(room.group);
+
+    // Build new room and add
+    room = buildRoom(ROOM_SIZE);
+    scene.add(room.group);
+
+    // Keep camera nicely framed on change
+    fitRoomToView(camera, controls, room.bounds);
+  },
 };
 
 initPanels(api);
@@ -73,4 +112,3 @@ window.addEventListener('keydown', (e) => {
 matchMedia(`(resolution: ${devicePixelRatio}dppx)`).addEventListener?.('change', () => {
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 });
-
